@@ -29,7 +29,6 @@ public class AfterApplicationListener implements ApplicationListener<ContextRefr
         ApplicationContext application = webServerInitializedEvent.getApplicationContext();
         Map<String, DataSourceConfig> beansOfType = application.getBeansOfType(DataSourceConfig.class);
         if (MapUtils.isNotEmpty(beansOfType)) {
-            //扫描未被捕获的注解，比如@Configuration
             beansOfType.forEach((beanName, dataSourceConfig) -> {
                 Class<?> userClass = ClassUtils.getUserClass(dataSourceConfig);
                 String classPath = userClass.getName();
