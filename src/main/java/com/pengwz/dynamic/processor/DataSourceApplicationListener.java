@@ -21,12 +21,12 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Component
-public class AfterApplicationListener implements ApplicationListener<ContextRefreshedEvent> {
-    private static final Log log = LogFactory.getLog(AfterApplicationListener.class);
+public class DataSourceApplicationListener implements ApplicationListener<ContextRefreshedEvent> {
+    private static final Log log = LogFactory.getLog(DataSourceApplicationListener.class);
 
     @Override
-    public void onApplicationEvent(ContextRefreshedEvent webServerInitializedEvent) {
-        ApplicationContext application = webServerInitializedEvent.getApplicationContext();
+    public void onApplicationEvent(ContextRefreshedEvent refreshedEvent) {
+        ApplicationContext application = refreshedEvent.getApplicationContext();
         Map<String, DataSourceConfig> beansOfType = application.getBeansOfType(DataSourceConfig.class);
         if (MapUtils.isNotEmpty(beansOfType)) {
             beansOfType.forEach((beanName, dataSourceConfig) -> {
@@ -51,7 +51,6 @@ public class AfterApplicationListener implements ApplicationListener<ContextRefr
     public void checkDataSource() {
         List<DataSourceInfo> sourceInfos = ContextApplication.getAllDataSourceInfo();
         if (sourceInfos.isEmpty()) {
-            log.error("未检查到数据源！请在配置中定义数据源！");
             return;
         }
         if (sourceInfos.size() == 1) {
