@@ -30,13 +30,12 @@ public class DataSourceApplicationListener implements ApplicationListener<Contex
     @Override
     public void onApplicationEvent(ContextRefreshedEvent refreshedEvent) {
         ApplicationContext application = refreshedEvent.getApplicationContext();
-        Map<String, DataSource> dataSourceMap = application.getBeansOfType(DataSource.class);
-        if (MapUtils.isNotEmpty(dataSourceMap)) {
-            dataSourceMap.forEach((beanName, dataSource) -> {
-                System.out.println(beanName + "=" + dataSource);
-            });
-        }
-
+//        Map<String, DataSource> dataSourceMap = application.getBeansOfType(DataSource.class);
+//        if (MapUtils.isNotEmpty(dataSourceMap)) {
+//            dataSourceMap.forEach((beanName, dataSource) -> {
+//                System.out.println(beanName + "=" + dataSource);
+//            });
+//        }
         Map<String, DataSourceConfig> dataSourceConfigType = application.getBeansOfType(DataSourceConfig.class);
         if (MapUtils.isNotEmpty(dataSourceConfigType)) {
             dataSourceConfigType.forEach((beanName, dataSourceConfig) -> {
