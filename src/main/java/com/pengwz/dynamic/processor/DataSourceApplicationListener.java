@@ -1,13 +1,16 @@
 package com.pengwz.dynamic.processor;
 
 import com.pengwz.dynamic.config.DataSourceConfig;
+import com.pengwz.dynamic.config.DataSourceManagement;
 import com.pengwz.dynamic.exception.BraveException;
 import com.pengwz.dynamic.model.DataSourceInfo;
+import com.pengwz.dynamic.model.DbType;
 import com.pengwz.dynamic.sql.ContextApplication;
 import com.pengwz.dynamic.util.DataSourceUtil;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.boot.autoconfigure.liquibase.LiquibaseDataSource;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -27,9 +30,16 @@ public class DataSourceApplicationListener implements ApplicationListener<Contex
     @Override
     public void onApplicationEvent(ContextRefreshedEvent refreshedEvent) {
         ApplicationContext application = refreshedEvent.getApplicationContext();
-        Map<String, DataSourceConfig> beansOfType = application.getBeansOfType(DataSourceConfig.class);
-        if (MapUtils.isNotEmpty(beansOfType)) {
-            beansOfType.forEach((beanName, dataSourceConfig) -> {
+        Map<String, DataSource> dataSourceMap = application.getBeansOfType(DataSource.class);
+        if (MapUtils.isNotEmpty(dataSourceMap)) {
+            dataSourceMap.forEach((beanName, dataSource) -> {
+                System.out.println(beanName + "=" + dataSource);
+            });
+        }
+
+        Map<String, DataSourceConfig> dataSourceConfigType = application.getBeansOfType(DataSourceConfig.class);
+        if (MapUtils.isNotEmpty(dataSourceConfigType)) {
+            dataSourceConfigType.forEach((beanName, dataSourceConfig) -> {
                 Class<?> userClass = ClassUtils.getUserClass(dataSourceConfig);
                 String classPath = userClass.getName();
                 if (!ContextApplication.existsDataSouce(classPath)) {
@@ -37,10 +47,11 @@ public class DataSourceApplicationListener implements ApplicationListener<Contex
                     info.setClassPath(classPath);
                     info.setClassBeanName(beanName);
                     info.setDefault(dataSourceConfig.defaultDataSource());
-                    info.setDataSource(dataSourceConfig.getDataSource());
                     info.setDataSourceBeanName(DataSourceUtil.getDataSourceBeanName(userClass));
                     DataSource dataSource = application.getBean(info.getDataSourceBeanName(), DataSource.class);
                     info.setDataSource(dataSource);
+                    DbType dbType = DataSourceManagement.getDbType(dataSource);
+                    info.setDbType(dbType);
                     ContextApplication.putDataSource(info);
                 }
             });
