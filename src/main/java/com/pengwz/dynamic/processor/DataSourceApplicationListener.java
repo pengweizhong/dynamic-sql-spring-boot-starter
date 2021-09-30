@@ -10,7 +10,6 @@ import com.pengwz.dynamic.util.DataSourceUtil;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.boot.autoconfigure.liquibase.LiquibaseDataSource;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -30,12 +29,6 @@ public class DataSourceApplicationListener implements ApplicationListener<Contex
     @Override
     public void onApplicationEvent(ContextRefreshedEvent refreshedEvent) {
         ApplicationContext application = refreshedEvent.getApplicationContext();
-//        Map<String, DataSource> dataSourceMap = application.getBeansOfType(DataSource.class);
-//        if (MapUtils.isNotEmpty(dataSourceMap)) {
-//            dataSourceMap.forEach((beanName, dataSource) -> {
-//                System.out.println(beanName + "=" + dataSource);
-//            });
-//        }
         Map<String, DataSourceConfig> dataSourceConfigType = application.getBeansOfType(DataSourceConfig.class);
         if (MapUtils.isNotEmpty(dataSourceConfigType)) {
             dataSourceConfigType.forEach((beanName, dataSourceConfig) -> {
@@ -53,6 +46,26 @@ public class DataSourceApplicationListener implements ApplicationListener<Contex
                     info.setDbType(dbType);
                     ContextApplication.putDataSource(info);
                 }
+            });
+        }
+        Map<String, DataSource> dataSourceMap = application.getBeansOfType(DataSource.class);
+        if (MapUtils.isNotEmpty(dataSourceMap)) {
+            List<DataSourceInfo> allDataSourceInfo = ContextApplication.getAllDataSourceInfo();
+            Map<String, DataSourceInfo> sourceInfoMap = allDataSourceInfo.stream().collect(Collectors.toMap(DataSourceInfo::getDataSourceBeanName, v -> v));
+            dataSourceMap.forEach((beanName, dataSource) -> {
+                DataSourceInfo dataSourceInfo = sourceInfoMap.get(beanName);
+                if (dataSourceInfo == null) {
+                    DataSourceInfo info = new DataSourceInfo();
+                    info.setClassPath("classPath:" + beanName);
+                    info.setClassBeanName(beanName);
+                    info.setDefault(true);
+                    info.setDataSourceBeanName(beanName);
+                    info.setDataSource(dataSource);
+                    DbType dbType = DataSourceManagement.getDbType(dataSource);
+                    info.setDbType(dbType);
+                    ContextApplication.putDataSource(info);
+                }
+
             });
         }
         checkDataSource();
