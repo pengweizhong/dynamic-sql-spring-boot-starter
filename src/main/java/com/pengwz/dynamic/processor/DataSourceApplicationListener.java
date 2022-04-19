@@ -48,26 +48,26 @@ public class DataSourceApplicationListener implements ApplicationListener<Contex
                 }
             });
         }
-        Map<String, DataSource> dataSourceMap = application.getBeansOfType(DataSource.class);
-        if (MapUtils.isNotEmpty(dataSourceMap)) {
-            List<DataSourceInfo> allDataSourceInfo = ContextApplication.getAllDataSourceInfo();
-            Map<String, DataSourceInfo> sourceInfoMap = allDataSourceInfo.stream().collect(Collectors.toMap(DataSourceInfo::getDataSourceBeanName, v -> v));
-            dataSourceMap.forEach((beanName, dataSource) -> {
-                DataSourceInfo dataSourceInfo = sourceInfoMap.get(beanName);
-                if (dataSourceInfo == null) {
-                    DataSourceInfo info = new DataSourceInfo();
-                    info.setClassPath("classPath:" + beanName);
-                    info.setClassBeanName(beanName);
-                    info.setDefault(true);
-                    info.setDataSourceBeanName(beanName);
-                    info.setDataSource(dataSource);
-                    DbType dbType = DataSourceManagement.getDbType(dataSource);
-                    info.setDbType(dbType);
-                    ContextApplication.putDataSource(info);
-                }
-
-            });
-        }
+//        Map<String, DataSource> dataSourceMap = application.getBeansOfType(DataSource.class);
+//        if (MapUtils.isNotEmpty(dataSourceMap)) {
+//            List<DataSourceInfo> allDataSourceInfo = ContextApplication.getAllDataSourceInfo();
+//            Map<String, DataSourceInfo> sourceInfoMap = allDataSourceInfo.stream().collect(Collectors.toMap(DataSourceInfo::getDataSourceBeanName, v -> v));
+//            dataSourceMap.forEach((beanName, dataSource) -> {
+//                DataSourceInfo dataSourceInfo = sourceInfoMap.get(beanName);
+//                if (dataSourceInfo == null) {
+//                    DataSourceInfo info = new DataSourceInfo();
+//                    info.setClassPath("classPath:" + beanName);
+//                    info.setClassBeanName(beanName);
+//                    info.setDefault(true);
+//                    info.setDataSourceBeanName(beanName);
+//                    info.setDataSource(dataSource);
+//                    DbType dbType = DataSourceManagement.getDbType(dataSource);
+//                    info.setDbType(dbType);
+//                    ContextApplication.putDataSource(info);
+//                }
+//
+//            });
+//        }
         checkDataSource();
     }
 
