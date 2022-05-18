@@ -7,6 +7,7 @@ import com.pengwz.dynamic.model.DataSourceInfo;
 import com.pengwz.dynamic.model.DbType;
 import com.pengwz.dynamic.sql.ContextApplication;
 import com.pengwz.dynamic.util.DataSourceUtil;
+import com.pengwz.dynamic.util.ProxyUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -41,8 +42,9 @@ public class DataSourceApplicationListener implements ApplicationListener<Contex
                     info.setDefault(dataSourceConfig.defaultDataSource());
                     info.setDataSourceBeanName(DataSourceUtil.getDataSourceBeanName(userClass));
                     DataSource dataSource = application.getBean(info.getDataSourceBeanName(), DataSource.class);
-                    info.setDataSource(dataSource);
-                    DbType dbType = DataSourceManagement.getDbType(dataSource);
+                    DataSource targetDataSource = (DataSource) ProxyUtils.getTarget(dataSource);
+                    info.setDataSource(targetDataSource);
+                    DbType dbType = DataSourceManagement.getDbType(targetDataSource);
                     info.setDbType(dbType);
                     ContextApplication.putDataSource(info);
                 }
