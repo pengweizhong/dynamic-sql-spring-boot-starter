@@ -8,6 +8,11 @@ import com.pengwz.dynamic.model.DbType;
 import com.pengwz.dynamic.sql.ContextApplication;
 import com.pengwz.dynamic.util.DataSourceUtil;
 import com.pengwz.dynamic.util.ProxyUtils;
+import com.pengwz.dynamic.utils.ConverterUtils;
+import com.pengwz.dynamic.utils.convert.ConverterAdapter;
+import com.pengwz.dynamic.utils.convert.LocalDateConverterAdapter;
+import com.pengwz.dynamic.utils.convert.LocalDateTimeConverterAdapter;
+import com.pengwz.dynamic.utils.convert.LocalTimeConverterAdapter;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -18,6 +23,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.ClassUtils;
 
 import javax.sql.DataSource;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -50,27 +56,35 @@ public class DataSourceApplicationListener implements ApplicationListener<Contex
                 }
             });
         }
-//        Map<String, DataSource> dataSourceMap = application.getBeansOfType(DataSource.class);
-//        if (MapUtils.isNotEmpty(dataSourceMap)) {
-//            List<DataSourceInfo> allDataSourceInfo = ContextApplication.getAllDataSourceInfo();
-//            Map<String, DataSourceInfo> sourceInfoMap = allDataSourceInfo.stream().collect(Collectors.toMap(DataSourceInfo::getDataSourceBeanName, v -> v));
-//            dataSourceMap.forEach((beanName, dataSource) -> {
-//                DataSourceInfo dataSourceInfo = sourceInfoMap.get(beanName);
-//                if (dataSourceInfo == null) {
-//                    DataSourceInfo info = new DataSourceInfo();
-//                    info.setClassPath("classPath:" + beanName);
-//                    info.setClassBeanName(beanName);
-//                    info.setDefault(true);
-//                    info.setDataSourceBeanName(beanName);
-//                    info.setDataSource(dataSource);
-//                    DbType dbType = DataSourceManagement.getDbType(dataSource);
-//                    info.setDbType(dbType);
-//                    ContextApplication.putDataSource(info);
-//                }
-//
-//            });
-//        }
         checkDataSource();
+        //更新ConverterAdapter
+        final Map<String, ConverterAdapter> converterAdapterMap = application.getBeansOfType(ConverterAdapter.class);
+        if (MapUtils.isNotEmpty(converterAdapterMap)) {
+            converterAdapterMap.forEach((beanName, converterAdapter) -> {
+                try {
+                    final Class<?> userClass = ClassUtils.getUserClass(converterAdapter);
+                    final Method declaredMethod = userClass.getDeclaredMethod("converter", Object.class, Class.class);
+                    final Class<?> returnType = declaredMethod.getReturnType();
+                    final Map<Class<?>, ConverterAdapter<?>> cacheConverterAdapterMap = ConverterUtils.getConverterAdapterMap();
+                    final ConverterAdapter<?> cacheAdapter = cacheConverterAdapterMap.get(returnType);
+                    if (cacheAdapter != null
+                            && !LocalDateConverterAdapter.class.isAssignableFrom(cacheAdapter.getClass())
+                            && !LocalDateTimeConverterAdapter.class.isAssignableFrom(cacheAdapter.getClass())
+                            && !LocalTimeConverterAdapter.class.isAssignableFrom(cacheAdapter.getClass())
+                    ) {
+                        final String cacheGeneric = cacheAdapter.getClass().toGenericString();
+                        final String generic = userClass.toGenericString();
+                        if (cacheGeneric.equals(generic)) {
+                            log.error("发现了[" + returnType + "]类型的多个转换器，已存在的转换器类路径：" + cacheGeneric + "，检索到新的转换器：" + generic);
+                            log.warn("请检查冲突的类型转换器，即将执行默认操作：" + generic + "将覆盖" + cacheGeneric);
+                        }
+                    }
+                    ConverterUtils.putConverterAdapter(returnType, (ConverterAdapter<?>) ProxyUtils.getTarget(converterAdapter));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        }
     }
 
     public void checkDataSource() {
