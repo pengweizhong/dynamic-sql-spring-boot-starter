@@ -65,7 +65,7 @@ public class DataSourceApplicationListener implements ApplicationListener<Contex
             converterAdapterMap.forEach((beanName, converterAdapter) -> {
                 try {
                     final Class<?> userClass = ClassUtils.getUserClass(converterAdapter);
-                    final Method declaredMethod = userClass.getDeclaredMethod("converter", Object.class, Class.class);
+                    final Method declaredMethod = userClass.getDeclaredMethod("converter", Class.class, Class.class, Object.class);
                     final Class<?> returnType = declaredMethod.getReturnType();
                     final Map<Class<?>, ConverterAdapter<?>> cacheConverterAdapterMap = ConverterUtils.getConverterAdapterMap();
                     final ConverterAdapter<?> cacheAdapter = cacheConverterAdapterMap.get(returnType);
@@ -76,7 +76,7 @@ public class DataSourceApplicationListener implements ApplicationListener<Contex
                     ) {
                         final String cacheGeneric = cacheAdapter.getClass().toGenericString();
                         final String generic = userClass.toGenericString();
-                        if (cacheGeneric.equals(generic)) {
+                        if (!cacheGeneric.equals(generic)) {
                             log.error("发现了[" + returnType + "]类型的多个转换器，已存在的转换器类路径：" + cacheGeneric + "，检索到新的转换器：" + generic);
                             log.warn("请检查冲突的类型转换器，即将执行默认操作：" + generic + "将覆盖" + cacheGeneric);
                         }
