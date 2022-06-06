@@ -42,12 +42,13 @@
 
     <distributionManagement>
         <snapshotRepository>
+            <!--oss需要对应到settings.xml下的service的id-->
             <id>snapshots</id>
-            <url>http://192.168.1.156:8081/repository/maven-snapshots/</url>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
         <repository>
             <id>releases</id>
-            <url>http://192.168.1.156:8081/repository/maven-releases/</url>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
         </repository>
     </distributionManagement>
 
@@ -123,7 +124,7 @@
                 </configuration>
             </plugin>
 
- <!--           <plugin>
+            <plugin>
                 <groupId>org.sonatype.plugins</groupId>
                 <artifactId>nexus-staging-maven-plugin</artifactId>
                 <version>1.6.8</version>
@@ -133,7 +134,7 @@
                     <nexusUrl>https://oss.sonatype.org/</nexusUrl>
                     <autoReleaseAfterClose>true</autoReleaseAfterClose>
                 </configuration>
-            </plugin>-->
+            </plugin>
 
             <!-- 生成文档jar -->
             <plugin>
@@ -169,7 +170,7 @@
                 </executions>
             </plugin>
 
-          <!--  &lt;!&ndash; 加签，用于验证jar包的完整性 &ndash;&gt;
+            <!-- 加签，用于验证jar包的完整性 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
@@ -183,7 +184,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>-->
+            </plugin>
         </plugins>
     </build>
 
