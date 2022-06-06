@@ -3,12 +3,14 @@ package com.pengwz.dynamic.processor;
 import com.pengwz.dynamic.config.DataSourceConfig;
 import com.pengwz.dynamic.config.DataSourceManagement;
 import com.pengwz.dynamic.exception.BraveException;
+import com.pengwz.dynamic.interceptor.SQLInterceptor;
 import com.pengwz.dynamic.model.DataSourceInfo;
 import com.pengwz.dynamic.model.DbType;
 import com.pengwz.dynamic.sql.ContextApplication;
 import com.pengwz.dynamic.util.DataSourceUtil;
 import com.pengwz.dynamic.util.ProxyUtils;
 import com.pengwz.dynamic.utils.ConverterUtils;
+import com.pengwz.dynamic.utils.InterceptorHelper;
 import com.pengwz.dynamic.utils.convert.ConverterAdapter;
 import com.pengwz.dynamic.utils.convert.LocalDateConverterAdapter;
 import com.pengwz.dynamic.utils.convert.LocalDateTimeConverterAdapter;
@@ -85,6 +87,12 @@ public class DataSourceApplicationListener implements ApplicationListener<Contex
                 }
             });
         }
+        //加载拦截器
+        final Map<String, SQLInterceptor> sqlInterceptorMap = application.getBeansOfType(SQLInterceptor.class);
+        if (MapUtils.isNotEmpty(sqlInterceptorMap)) {
+            sqlInterceptorMap.values().forEach(InterceptorHelper::initSQLInterceptor);
+        }
+
     }
 
     public void checkDataSource() {
