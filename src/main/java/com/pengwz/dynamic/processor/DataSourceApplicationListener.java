@@ -107,8 +107,8 @@ public class DataSourceApplicationListener implements ApplicationListener<Contex
             }
         } else {
             Map<Boolean, Long> booleanLongMap = sourceInfos.stream().map(DataSourceInfo::isDefault).collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
-            Long aLong = booleanLongMap.get(Boolean.TRUE);
-            if (aLong > 1) {
+            Long defaultDatabaseNumber = booleanLongMap.get(Boolean.TRUE);
+            if (defaultDatabaseNumber != null && defaultDatabaseNumber > 1) {
                 log.error("仅支持一个默认数据源，请检查数据源配置");
                 throw new BraveException("仅支持一个默认数据源，请检查数据源配置");
             }
