@@ -42,7 +42,7 @@ public class DataSourceApplicationListener implements ApplicationListener<Contex
         if (MapUtils.isNotEmpty(dataSourceConfigType)) {
             dataSourceConfigType.forEach((beanName, dataSourceConfig) -> {
                 Class<?> userClass = ClassUtils.getUserClass(dataSourceConfig);
-                String classPath = userClass.getName();
+                String classPath = userClass.getCanonicalName();
                 if (!ContextApplication.existsDataSouce(classPath)) {
                     DataSourceInfo info = new DataSourceInfo();
                     info.setClassPath(classPath);
