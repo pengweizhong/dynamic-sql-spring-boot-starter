@@ -98,9 +98,8 @@
                 <filtering>true</filtering>
             </resource>
         </resources>
-
         <plugins>
-            <!-- 指定jdk -->
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -112,7 +111,6 @@
                 </configuration>
             </plugin>
 
-            <!-- 跳过测试 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -135,7 +133,6 @@
                 </configuration>
             </plugin>
 
-            <!-- 生成文档jar -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
@@ -153,7 +150,6 @@
                 </executions>
             </plugin>
 
-            <!-- 生成源码jar -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
@@ -169,7 +165,6 @@
                 </executions>
             </plugin>
 
-            <!-- 加签，用于验证jar包的完整性 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
